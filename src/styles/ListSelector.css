@@ -1,0 +1,15 @@
+.list-selector {
+    margin-bottom: 20px;
+  }
+  
+  .list-selector label {
+    font-weight: bold;
+  }
+  
+  .list-selector select {
+    margin-left: 10px;
+    padding: 5px;
+    border: 1px solid #f30707;
+    border-radius: 3px;
+  }
+  
