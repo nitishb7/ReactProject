@@ -1,34 +1,60 @@
+import './App.css';
 import React, { useState } from 'react';
-import './styles/Container.css';
-import './styles/ItemList.css';
-import './styles/ListSelector.css';
-import Container from './components/Container';
-import ItemList from './components/ItemList';
-import ListSelector from './components/ListSelector';
+import request from 'browser-request';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
-const App = () => {
-  const [lists, setLists] = useState([
-    { id: 1, name: 'List 1', items: [{ id: 1, name: 'Item 1' }, { id: 2, name: 'Item 2' }] },
-    { id: 2, name: 'List 2', items: [{ id: 3, name: 'Item 3' }, { id: 4, name: 'Item 4' }] },
-    { id: 3, name: 'List 3', items: [{ id: 5, name: 'Item 5' }, { id: 6, name: 'Item 6' }] },
-  ]);
+function App() {
+  const [cityName, setCityName] = useState('');
+  const [weatherData, setWeatherData] = useState(null);
 
-  const [selectedList, setSelectedList] = useState(lists[0].id);
+  const apiKey = 'eb819c14c08ff9e4cf99ba3381655186';
 
-  const handleListSelect = (event) => {
-    setSelectedList(parseInt(event.target.value));
+  const fetchWeatherData = () => {
+    const apiUrl = `http://api.openweathermap.org/data/2.5/weather?q=${cityName}&appid=${apiKey}&units=metric`;
+
+    request({ url: apiUrl, json: true }, (error, response, body) => {
+      if (error) {
+        console.error('Error fetching data:', error);
+      } else if (response.statusCode === 200) {
+        setWeatherData(body);
+      } else {
+        console.error('Unable to fetch data:', response.statusCode);
+      }
+    });
   };
 
-  const selectedListObj = lists.find((list) => list.id === selectedList);
+  const renderWeatherData = () => {
+    if (weatherData) {
+      const weatherDescription = weatherData.weather[0].description;
+      const temperature = weatherData.main.temp;
+
+      return (
+        <div>
+          Weather in {cityName}: {weatherDescription}, {temperature}°C
+        </div>
+      );
+    }
+    return null;
+  };
 
   return (
-    <Container>
-      <h1>List Selector App</h1>
-      <ListSelector lists={lists} selectedList={selectedList} onSelectList={handleListSelect} />
-      <h2>{selectedListObj.name}</h2>
-      <ItemList items={selectedListObj.items} />
-    </Container>
+      <div className="container mt-5">
+        <h1 className="text-center mb-4">Weather App</h1>
+        <div className="d-flex justify-content-center">
+          <input
+            type="text"
+            className="form-control w-50"
+            value={cityName}
+            onChange={(e) => setCityName(e.target.value)}
+            placeholder="Enter city name"
+          />
+          <button className="btn btn-primary ms-3" onClick={fetchWeatherData}>
+            Get Weather
+          </button>
+        </div>
+        <div className="text-center mt-4">{renderWeatherData()}</div>
+      </div>
   );
-};
+}
 
 export default App;
